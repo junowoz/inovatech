@@ -1,0 +1,28 @@
+{
+  "version": "0.2",
+  "language": "en,pt,pt_BR",
+  "ignoreWords": [
+    "Inovatech",
+    "inovatech",
+    "Fametro",
+    "fametro",
+    "junowoz",
+    "Despublicar",
+    "despublicar",
+    "despublicado",
+    "Inscrever",
+    "inscrever",
+    "Projetos",
+    "projetos",
+    "Membros",
+    "Fundadores",
+    "Cofundador",
+    "supabase",
+    "Supabase",
+    "shadcn",
+    "zustand",
+    "lucide",
+    "sonner",
+    "Karla"
+  ]
+}

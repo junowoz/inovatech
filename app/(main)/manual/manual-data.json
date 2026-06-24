@@ -1,0 +1,34 @@
+{
+  "sections": [
+    {
+      "id": "the_idea",
+      "title": "A Ideia",
+      "content": "A primeira coisa que precisamos definir é o que você está construindo e por quê. As respostas devem ser claras e concisas. É importante ser capaz de pensar e se comunicar claramente como fundador. Além disso, é crucial entender quem precisa desesperadamente do seu produto. No melhor dos casos, você mesmo é o usuário-alvo. No segundo melhor caso, você entende o usuário-alvo extremamente bem."
+    },
+    {
+      "id": "the_team",
+      "title": "A Equipe",
+      "content": "Equipes medíocres não constroem grandes empresas. Uma das coisas que mais observamos é a força dos fundadores. Quando costumávamos fazer investimentos em estágios posteriores, olhávamos com a mesma intensidade para a força dos funcionários que os fundadores contratavam."
+    },
+    {
+      "id": "the_product",
+      "title": "O Produto",
+      "content": "Aqui está o segredo do sucesso: tenha um ótimo produto. Esta é a única coisa que todas as grandes empresas têm em comum. Se você não construir um produto que os usuários amem, você acabará falhando. No entanto, os fundadores sempre procuram algum outro truque. As startups são o ponto em sua vida quando os truques param de funcionar."
+    },
+    {
+      "id": "execution",
+      "title": "Execução",
+      "content": "Embora seja necessário construir um ótimo produto, você não termina depois disso. Você ainda precisa transformá-lo em uma grande empresa, e você tem que fazer isso sozinho - a fantasia de contratar um 'gerente experiente' para fazer todo esse trabalho é extremamente prevalente e um cemitério para empresas fracassadas. Você não pode terceirizar o trabalho para outra pessoa por muito tempo."
+    },
+    {
+      "id": "growth",
+      "title": "Crescimento",
+      "content": "Crescimento e momentum são as chaves para uma grande execução. O crescimento (desde que não seja um crescimento do tipo 'vender notas de um dólar por 90 centavos') resolve todos os problemas, e a falta de crescimento não é solucionável por nada além de crescimento. Se você está crescendo, parece que está vencendo, e as pessoas estão felizes."
+    },
+    {
+      "id": "references",
+      "title": "Referências",
+      "content": "Para mais informações, consulte o 'Startup Playbook' escrito por Sam Altman e ilustrado por Gregory Koberger. Disponível em: https://playbook.samaltman.com/"
+    }
+  ]
+}

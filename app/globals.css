@@ -1,0 +1,219 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Inovatech design tokens.
+ * Brand colors are preserved 1:1 from the original Bootstrap theme:
+ *   primary  #095BA6 (blue)   ·  accent #E42528 (red CTA — Fametro)
+ *   ink      #062b4c (titles) ·  hero   #e7eef6 (light-blue surface)
+ */
+:root {
+  --radius: 0.625rem;
+
+  --background: #ffffff;
+  --foreground: #0b1f33;
+
+  --card: #ffffff;
+  --card-foreground: #0b1f33;
+
+  --popover: #ffffff;
+  --popover-foreground: #0b1f33;
+
+  --primary: #095BA6;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f1f5f9;
+  --secondary-foreground: #1e293b;
+
+  --muted: #f1f5f9;
+  --muted-foreground: #5b6b7b;
+
+  --accent: #e7eef6;
+  --accent-foreground: #062b4c;
+
+  --destructive: #d83a3a;
+  --destructive-foreground: #ffffff;
+
+  --border: #e3e8ee;
+  --input: #dbe1e8;
+  --ring: #095BA6;
+
+  /* Brand-specific tokens (not part of the stock shadcn palette) */
+  --brand: #095BA6;
+  --brand-foreground: #ffffff;
+  --brand-accent: #e42528;
+  --brand-accent-foreground: #ffffff;
+  --brand-ink: #062b4c;
+  --hero: #e7eef6;
+
+  --chart-1: #095BA6;
+  --chart-2: #e42528;
+  --chart-3: #28a745;
+  --chart-4: #ffc107;
+  --chart-5: #17a2b8;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0b1f33;
+  --sidebar-primary: #095BA6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #1e293b;
+  --sidebar-border: #e3e8ee;
+  --sidebar-ring: #095BA6;
+}
+
+.dark {
+  --background: #0b1320;
+  --foreground: #e9eef5;
+
+  --card: #111c2e;
+  --card-foreground: #e9eef5;
+
+  --popover: #111c2e;
+  --popover-foreground: #e9eef5;
+
+  --primary: #4a9be8;
+  --primary-foreground: #07101d;
+
+  --secondary: #1c2940;
+  --secondary-foreground: #e9eef5;
+
+  --muted: #1c2940;
+  --muted-foreground: #9bb0c7;
+
+  --accent: #16263d;
+  --accent-foreground: #e9eef5;
+
+  --destructive: #ef5350;
+  --destructive-foreground: #07101d;
+
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.14);
+  --ring: #4a9be8;
+
+  --brand: #4a9be8;
+  --brand-foreground: #07101d;
+  --brand-accent: #f0635f;
+  --brand-accent-foreground: #07101d;
+  --brand-ink: #cfe0f2;
+  --hero: #16263d;
+
+  --sidebar: #111c2e;
+  --sidebar-foreground: #e9eef5;
+  --sidebar-primary: #4a9be8;
+  --sidebar-primary-foreground: #07101d;
+  --sidebar-accent: #1c2940;
+  --sidebar-accent-foreground: #e9eef5;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #4a9be8;
+}
+
+@theme inline {
+  --font-sans: var(--font-karla), ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-foreground: var(--brand-accent-foreground);
+  --color-brand-ink: var(--brand-ink);
+  --color-hero: var(--hero);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Shadow-as-border tokens (design guideline: shadows over borders for depth) */
+  --shadow-border:
+    0px 0px 0px 1px rgba(0, 0, 0, 0.06), 0px 1px 2px -1px rgba(0, 0, 0, 0.06),
+    0px 2px 4px 0px rgba(0, 0, 0, 0.04);
+  --shadow-border-hover:
+    0px 0px 0px 1px rgba(0, 0, 0, 0.08), 0px 1px 2px -1px rgba(0, 0, 0, 0.08),
+    0px 2px 4px 0px rgba(0, 0, 0, 0.06);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Typography polish (design guidelines) */
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@layer utilities {
+  /* Equal-width digits for any dynamically changing numbers. */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /*
+   * Subtle inset outline for content images (photos, project media) — pure
+   * black in light mode, pure white in dark. Applied per-image, never to
+   * logos/icons/transparent art (which would read as a stray box).
+   */
+  .img-outline {
+    outline: 1px solid rgba(0, 0, 0, 0.1);
+    outline-offset: -1px;
+  }
+
+  .dark .img-outline {
+    outline-color: rgba(255, 255, 255, 0.1);
+  }
+}
