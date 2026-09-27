@@ -2,14 +2,21 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { eq, sql } from "drizzle-orm";
 
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth";
+import { hashPassword, verifyPassword } from "@/lib/auth/password";
+import { createSession, destroySession } from "@/lib/auth/session";
+import { getDb, schema } from "@/lib/db";
 import { loginSchema, passwordSchema } from "@/lib/validations/auth";
 
 export interface AuthState {
   error?: string;
   fieldErrors?: Partial<Record<string, string>>;
 }
+
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const MAX_LOGIN_FAILURES = 5;
 
 export async function signInAction(
   _prev: AuthState,
@@ -30,28 +37,75 @@ export async function signInAction(
     };
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword(parsed.data);
+  const db = await getDb();
+  const rows = await db
+    .select()
+    .from(schema.adminUser)
+    .where(eq(schema.adminUser.email, parsed.data.email.toLowerCase()))
+    .limit(1);
+  const user = rows[0];
+  const now = Date.now();
+  const attempts = user
+    ? (
+        await db
+          .select()
+          .from(schema.loginAttempt)
+          .where(eq(schema.loginAttempt.adminUserId, user.id))
+          .limit(1)
+      )[0]
+    : null;
+  const activeWindow = Boolean(
+    attempts && now - attempts.windowStart.getTime() < LOGIN_WINDOW_MS
+  );
 
-  if (error) {
-    const message = error.message.toLowerCase();
-    if (message.includes("invalid") || message.includes("credentials")) {
-      return { error: "Senha ou email incorretos." };
-    }
-    if (message.includes("not confirmed") || message.includes("confirm")) {
-      return { error: "Email ainda não confirmado." };
-    }
-    return { error: error.message };
+  if (activeWindow && attempts && attempts.failures >= MAX_LOGIN_FAILURES) {
+    return { error: "Senha ou email incorretos." };
   }
 
-  const redirectTo = (formData.get("redirect") as string) || "/dashboard";
+  const valid = user
+    ? await verifyPassword(parsed.data.password, user.passwordHash)
+    : false;
+
+  if (!user || !valid) {
+    if (user) {
+      if (activeWindow) {
+        await db
+          .update(schema.loginAttempt)
+          .set({ failures: sql`${schema.loginAttempt.failures} + 1` })
+          .where(eq(schema.loginAttempt.adminUserId, user.id));
+      } else {
+        await db
+          .insert(schema.loginAttempt)
+          .values({
+            adminUserId: user.id,
+            failures: 1,
+            windowStart: new Date(now),
+          })
+          .onConflictDoUpdate({
+            target: schema.loginAttempt.adminUserId,
+            set: { failures: 1, windowStart: new Date(now) },
+          });
+      }
+    }
+    return { error: "Senha ou email incorretos." };
+  }
+
+  await db
+    .delete(schema.loginAttempt)
+    .where(eq(schema.loginAttempt.adminUserId, user.id));
+  await createSession(user.id);
+
+  const requestedRedirect = formData.get("redirect");
+  const redirectTo =
+    requestedRedirect === "/dashboard/alterar-senha"
+      ? requestedRedirect
+      : "/dashboard";
   revalidatePath("/", "layout");
   redirect(redirectTo);
 }
 
 export async function signOutAction() {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
+  await destroySession();
   revalidatePath("/", "layout");
   redirect("/");
 }
@@ -75,22 +129,20 @@ export async function updatePasswordAction(
     };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const { error } = await supabase.auth.updateUser({
-    password: parsed.data.password,
-  });
+  const db = await getDb();
+  const passwordHash = await hashPassword(parsed.data.password);
+  await db
+    .update(schema.adminUser)
+    .set({ passwordHash })
+    .where(eq(schema.adminUser.id, user.id));
 
-  if (error) {
-    return { error: error.message };
-  }
-
-  await supabase.auth.signOut();
+  await db
+    .delete(schema.adminSession)
+    .where(eq(schema.adminSession.adminUserId, user.id));
+  await destroySession();
   revalidatePath("/", "layout");
   redirect("/login?reset=1");
 }

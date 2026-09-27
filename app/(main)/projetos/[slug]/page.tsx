@@ -24,7 +24,7 @@ import {
   getLookups,
   getProjectBySlug,
   getProjectMembers,
-} from "@/lib/supabase/queries";
+} from "@/lib/db/queries";
 
 type PageParams = { params: Promise<{ slug: string }> };
 

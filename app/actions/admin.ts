@@ -1,10 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { eq, inArray } from "drizzle-orm";
 
 import { isCurrentUserAdmin } from "@/lib/auth";
+import { getDb, schema } from "@/lib/db";
 import { parseImagePaths } from "@/lib/media";
-import { createClient } from "@/lib/supabase/server";
+import { removeObjects } from "@/lib/storage";
 import { projectUpdateSchema } from "@/lib/validations/admin";
 
 export interface ActionResult {
@@ -25,13 +27,16 @@ export async function setProjectsStatus(
   if (!(await isCurrentUserAdmin())) return { error: "Não autorizado." };
   if (ids.length === 0) return { success: true };
 
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("project")
-    .update({ status })
-    .in("id", ids);
+  try {
+    const db = await getDb();
+    await db
+      .update(schema.project)
+      .set({ status })
+      .where(inArray(schema.project.id, ids));
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : String(error) };
+  }
 
-  if (error) return { error: error.message };
   revalidateProjectViews();
   return { success: true };
 }
@@ -39,14 +44,19 @@ export async function setProjectsStatus(
 export async function deleteProjectAction(id: number): Promise<ActionResult> {
   if (!(await isCurrentUserAdmin())) return { error: "Não autorizado." };
 
-  const supabase = await createClient();
+  const db = await getDb();
 
-  const { data } = await supabase
-    .from("project")
-    .select("logoImg, teamImg, productImg")
-    .eq("id", id)
-    .maybeSingle();
+  const rows = await db
+    .select({
+      logoImg: schema.project.logoImg,
+      teamImg: schema.project.teamImg,
+      productImg: schema.project.productImg,
+    })
+    .from(schema.project)
+    .where(eq(schema.project.id, id))
+    .limit(1);
 
+  const data = rows[0];
   if (data) {
     const paths = [
       ...parseImagePaths(data.logoImg),
@@ -54,12 +64,15 @@ export async function deleteProjectAction(id: number): Promise<ActionResult> {
       ...parseImagePaths(data.productImg),
     ];
     if (paths.length > 0) {
-      await supabase.storage.from("midia").remove(paths);
+      await removeObjects(paths);
     }
   }
 
-  const { error } = await supabase.from("project").delete().eq("id", id);
-  if (error) return { error: error.message };
+  try {
+    await db.delete(schema.project).where(eq(schema.project.id, id));
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : String(error) };
+  }
 
   revalidateProjectViews();
   return { success: true };
@@ -74,13 +87,16 @@ export async function updateProjectAction(
   const parsed = projectUpdateSchema.safeParse(input);
   if (!parsed.success) return { error: "Dados inválidos." };
 
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("project")
-    .update(parsed.data)
-    .eq("id", id);
+  try {
+    const db = await getDb();
+    await db
+      .update(schema.project)
+      .set(parsed.data)
+      .where(eq(schema.project.id, id));
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : String(error) };
+  }
 
-  if (error) return { error: error.message };
   revalidateProjectViews();
   return { success: true };
 }

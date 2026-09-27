@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { DashboardClient } from "@/components/dashboard/dashboard-client";
 import { requireAdmin } from "@/lib/auth";
-import { getAllProjects, getLookups } from "@/lib/supabase/queries";
+import { getAllProjects, getLookups } from "@/lib/db/queries";
 
 export const metadata: Metadata = {
   title: "Admin Dashboard",

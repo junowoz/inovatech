@@ -1,0 +1,40 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "inovatech",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-09-12",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [{ "pattern": "inovatech.junowoz.com", "custom_domain": true }],
+  "observability": { "enabled": true },
+  "placement": { "mode": "smart" },
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "inovatech",
+      "database_id": "7fd3a010-24e1-4692-be15-34932aedbb6e",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "r2_buckets": [
+    {
+      // Shared bucket already used by other projects (see
+      // ~/code/toolbox/shared_docs/operations/STACK.md) — no new bucket is
+      // created for this app. Objects live under the `inovatech/` key
+      // prefix, see lib/storage.ts.
+      "binding": "BUCKET",
+      "bucket_name": "junowoz-bucket"
+    }
+  ],
+  "vars": {
+    "NEXT_PUBLIC_ENV": "production",
+    "NEXT_PUBLIC_SITE_URL": "https://inovatech.junowoz.com",
+    "NEXT_PUBLIC_MIDIA_URL": "/midia/",
+    "NEXT_PUBLIC_CONTACT_EMAIL": "inbox@junowoz.com"
+  }
+}

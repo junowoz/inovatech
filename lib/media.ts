@@ -1,9 +1,9 @@
 /**
- * Helpers for the legacy media storage format. Image columns hold a JSON string
- * `{"path": string[]}` pointing at objects in the Supabase `midia` bucket.
+ * Helpers for the legacy media path format. Image columns hold a JSON string
+ * `{"path": string[]}` pointing at objects served by the app's media route.
  */
 
-const MIDIA_BASE = process.env.NEXT_PUBLIC_MIDIA_URL ?? "";
+const MIDIA_BASE = process.env.NEXT_PUBLIC_MIDIA_URL ?? "/midia/";
 
 function pathArray(value: unknown): string[] {
   if (

@@ -1,9 +1,12 @@
 /**
- * Database schema types for the Inovatech Supabase project.
+ * Database row shapes for the Inovatech D1 (SQLite) schema. Source of truth
+ * for the columns is `lib/db/schema.ts` (Drizzle); these are the plain
+ * read/write shapes the app code (queries, actions, components) works with.
  *
  * Compatibility note: `logoImg` / `teamImg` / `productImg` are stored as JSON
- * *strings* of the shape `{"path": string[]}` (legacy format preserved so existing
- * rows keep rendering). Use the helpers in `lib/media.ts` to read/write them.
+ * *strings* of the shape `{"path": string[]}` (legacy format preserved so
+ * existing rows, migrated from Supabase, keep rendering). Use the helpers in
+ * `lib/media.ts` to read/write them.
  */
 
 export type LookupRow = {
@@ -55,44 +58,8 @@ export type MemberInsert = Omit<MemberRow, "id" | "name"> & {
   name: string;
 };
 
-export type AdminRow = {
-  user_id: string;
-  created_at: string;
-};
-
-type Table<Row, Insert = Row, Update = Partial<Row>> = {
-  Row: Row;
-  Insert: Insert;
-  Update: Update;
-  Relationships: [];
-};
-
-export interface Database {
-  public: {
-    Tables: {
-      project: Table<ProjectRow, ProjectInsert, ProjectUpdate>;
-      member: Table<MemberRow, MemberInsert>;
-      year: Table<LookupRow>;
-      semester: Table<LookupRow>;
-      course: Table<LookupRow>;
-      tech: Table<LookupRow>;
-      industry: Table<LookupRow>;
-      admins: Table<AdminRow, { user_id: string; created_at?: string }>;
-    };
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
-    Enums: Record<string, never>;
-    CompositeTypes: Record<string, never>;
-  };
-}
-
 /** Lookup tables keyed by id, used for rendering human-readable labels. */
-export type LookupKind =
-  | "year"
-  | "semester"
-  | "course"
-  | "tech"
-  | "industry";
+export type LookupKind = "year" | "semester" | "course" | "tech" | "industry";
 
 export interface Lookups {
   year: LookupRow[];

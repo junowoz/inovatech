@@ -8,7 +8,11 @@ onlyBuiltDependencies:
   - sharp
   - unrs-resolver
   - "@tailwindcss/oxide"
+  - esbuild
+  - workerd
 
 allowBuilds:
   sharp: true
   unrs-resolver: true
+  esbuild: true
+  workerd: true

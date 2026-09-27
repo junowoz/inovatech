@@ -4,7 +4,7 @@ import Image from "next/image";
 import { HomeCards } from "@/components/home/home-cards";
 import { ProjectSearch } from "@/components/home/project-search";
 import { SITE } from "@/lib/constants";
-import { getPublishedProjects } from "@/lib/supabase/queries";
+import { getPublishedProjects } from "@/lib/db/queries";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },

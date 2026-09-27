@@ -1,68 +1,43 @@
 import "server-only";
 
 import { redirect } from "next/navigation";
-import type { User } from "@supabase/supabase-js";
 
-import { createClient } from "@/lib/supabase/server";
+import { getSessionUser, type SessionUser } from "@/lib/auth/session";
 
-/** Returns the authenticated user (verified against Supabase) or null. */
-export async function getCurrentUser(): Promise<User | null> {
+/** Returns the authenticated admin (verified against D1) or null. */
+export async function getCurrentUser(): Promise<SessionUser | null> {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    return user;
+    return await getSessionUser();
   } catch {
     return null;
   }
 }
 
-async function userIsAdmin(user: User): Promise<boolean> {
-  try {
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from("admins")
-      .select("user_id")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (error) {
-      console.error("[auth] admin lookup:", error);
-      return false;
-    }
-
-    return Boolean(data);
-  } catch (error) {
-    console.error("[auth] admin lookup:", error);
-    return false;
-  }
-}
-
-/** Returns true only for authenticated users listed in public.admins. */
+/**
+ * Every row in `adminUser` is an admin — there is no separate role table
+ * (the old Supabase `admins` allowlist collapses into the user table itself).
+ */
 export async function isCurrentUserAdmin(): Promise<boolean> {
   const user = await getCurrentUser();
-  return user ? userIsAdmin(user) : false;
+  return Boolean(user);
 }
 
 /** Server-side guard: redirect to /login when there is no authenticated user. */
-export async function requireUser(redirectTo = "/login"): Promise<User> {
+export async function requireUser(redirectTo = "/login"): Promise<SessionUser> {
   const user = await getCurrentUser();
   if (!user) redirect(redirectTo);
   return user;
 }
 
 /** Server-side guard for admin pages and actions. */
-export async function requireAdmin(redirectTo = "/login"): Promise<User> {
-  const user = await requireUser(redirectTo);
-  if (!(await userIsAdmin(user))) redirect("/");
-  return user;
+export async function requireAdmin(redirectTo = "/login"): Promise<SessionUser> {
+  return requireUser(redirectTo);
 }
 
 /** Capitalized first name (falls back to email) for greetings. */
-export function userDisplayName(user: User | null): string | null {
-  const first = user?.user_metadata?.first_name;
-  if (typeof first === "string" && first.length > 0) {
+export function userDisplayName(user: SessionUser | null): string | null {
+  const first = user?.name?.split(" ")[0];
+  if (first && first.length > 0) {
     return first[0].toUpperCase() + first.slice(1).toLowerCase();
   }
   return user?.email ?? null;

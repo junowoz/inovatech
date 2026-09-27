@@ -10,13 +10,12 @@ export const SITE = {
   author: { name: "@junowoz", url: "https://junowoz.com" },
 } as const;
 
-const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "";
+const contactEmail =
+  process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "inbox@junowoz.com";
 
 export const CONTACT = {
   email: contactEmail,
   emailHref: contactEmail ? `mailto:${contactEmail}` : "",
-  whatsapp: process.env.NEXT_PUBLIC_CONTACT_WHATSAPP_URL ?? "",
-  address: process.env.NEXT_PUBLIC_CONTACT_ADDRESS_URL ?? "",
   instagram: "https://www.instagram.com/computacaofametro/",
   fametro: "https://fametro.edu.br/",
   flowcode: "https://www.flowcode.com/page/computacaofametro",

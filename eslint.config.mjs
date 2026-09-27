@@ -6,9 +6,12 @@ const eslintConfig = [
     ignores: [
       "_legacy/**",
       ".next/**",
+      ".open-next/**",
+      ".wrangler/**",
       "node_modules/**",
       "design/**",
       "next-env.d.ts",
+      "cloudflare-env.d.ts",
     ],
   },
   ...nextCoreWebVitals,

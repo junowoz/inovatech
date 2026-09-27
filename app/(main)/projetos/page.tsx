@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { getLookups, getPublishedProjects } from "@/lib/supabase/queries";
+import { getLookups, getPublishedProjects } from "@/lib/db/queries";
 
 export const metadata: Metadata = {
   title: "Projetos",

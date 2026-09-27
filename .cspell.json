@@ -17,12 +17,17 @@
     "Membros",
     "Fundadores",
     "Cofundador",
-    "supabase",
-    "Supabase",
     "shadcn",
     "zustand",
     "lucide",
     "sonner",
-    "Karla"
+    "Karla",
+    "drizzle",
+    "Drizzle",
+    "wrangler",
+    "Wrangler",
+    "pbkdf",
+    "opennextjs",
+    "miniflare"
   ]
 }

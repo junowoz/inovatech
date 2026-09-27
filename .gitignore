@@ -28,7 +28,8 @@ yarn-error.log*
 
 # local env files
 .env
-.env*.local
+.env.*
+!.env.example
 
 # vercel
 .vercel
@@ -36,3 +37,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# cloudflare / opennext
+/.open-next/
+/.wrangler/

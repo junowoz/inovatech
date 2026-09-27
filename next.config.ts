@@ -1,30 +1,18 @@
 import type { NextConfig } from "next";
+import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 
-/**
- * Derive the Supabase storage hostname from the public URL so next/image can
- * optimize remote media without hardcoding a project ref.
- */
-function supabaseRemotePattern() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (!url) return [];
-  try {
-    return [
-      {
-        protocol: "https" as const,
-        hostname: new URL(url).hostname,
-        pathname: "/storage/v1/object/public/**",
-      },
-    ];
-  } catch {
-    return [];
-  }
-}
+// Local `next dev` gets the D1/R2 bindings from wrangler.jsonc through
+// miniflare, so the same `getCloudflareContext()` code runs in dev and prod.
+initOpenNextCloudflareForDev();
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  experimental: { serverActions: { bodySizeLimit: "30mb" } },
   images: {
-    remotePatterns: [...supabaseRemotePattern()],
+    // Workers has no Next image optimizer. Media is served as-is from R2
+    // via the app's own /midia route (same origin, no remotePatterns needed).
+    unoptimized: true,
   },
 };
 

@@ -13,7 +13,7 @@ import { CONTACT } from "@/lib/constants";
 export function InscreverSucesso() {
   const router = useRouter();
   const [countdown, setCountdown] = useState(20);
-  const hasContact = CONTACT.emailHref || CONTACT.whatsapp;
+  const hasContact = Boolean(CONTACT.emailHref);
 
   useEffect(() => {
     if (countdown <= 0) {
@@ -44,33 +44,14 @@ export function InscreverSucesso() {
             <>
               <Separator />
               <p className="text-pretty text-muted-foreground">
-                Caso haja algum erro ou precise comunicar algo
-                {CONTACT.emailHref ? (
-                  <>
-                    , envie um e-mail para{" "}
-                    <a
-                      href={CONTACT.emailHref}
-                      className="text-primary hover:underline"
-                    >
-                      {CONTACT.email}
-                    </a>
-                  </>
-                ) : null}
-                {CONTACT.emailHref && CONTACT.whatsapp ? " ou" : null}
-                {CONTACT.whatsapp ? (
-                  <>
-                    {" "}
-                    nos chame no{" "}
-                    <a
-                      href={CONTACT.whatsapp}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline"
-                    >
-                      WhatsApp
-                    </a>
-                  </>
-                ) : null}
+                Caso haja algum erro ou precise comunicar algo, envie um e-mail
+                para{" "}
+                <a
+                  href={CONTACT.emailHref}
+                  className="text-primary hover:underline"
+                >
+                  {CONTACT.email}
+                </a>
                 .
               </p>
             </>

@@ -1,8 +1,7 @@
 import { z } from "zod";
 
 const looksLikeUrl = (value: string) =>
-  /^https?:\/\/\S+$/i.test(value) ||
-  /^[\w-]+(\.[\w-]+)+(\/\S*)?$/i.test(value);
+  /^https?:\/\/\S+$/i.test(value) || /^[\w-]+(\.[\w-]+)+(\/\S*)?$/i.test(value);
 
 export const isValidContact = (value: string) =>
   z.email().safeParse(value).success || /linkedin\./i.test(value);
@@ -57,11 +56,12 @@ export const step2Schema = z.object({
 });
 
 export const leaderSchema = z.object({
-  name: z.string().trim().min(1, "Nome obrigatório"),
+  name: z.string().trim().min(1, "Nome obrigatório").max(100),
   contact: z
     .string()
     .trim()
     .min(1, "Contato é obrigatório")
+    .max(500)
     .refine(
       isValidContact,
       "Contato inválido, insira um e-mail válido ou um link do LinkedIn"
@@ -70,26 +70,29 @@ export const leaderSchema = z.object({
 });
 
 export const submitProjectSchema = z.object({
-  projectUUID: z.uuid(),
   name: z.string().trim().min(2).max(50),
   slogan: z.string().trim().min(1).max(100),
-  projectDescription: z.string().trim().min(1),
-  targetAudience: z.string().trim().min(1),
-  productDescription: z.string().trim().min(1),
-  projectViability: z.string().trim().min(1),
-  link: z.string().trim().max(1000).optional().default(""),
+  projectDescription: z.string().trim().min(1).max(1000),
+  targetAudience: z.string().trim().min(1).max(500),
+  productDescription: z.string().trim().min(1).max(1000),
+  projectViability: z.string().trim().min(1).max(1000),
+  link: z
+    .string()
+    .trim()
+    .max(1000)
+    .refine((v) => v === "" || looksLikeUrl(v))
+    .optional()
+    .default(""),
   year: z.coerce.number().int().positive(),
   semester: z.coerce.number().int().positive(),
   course: z.coerce.number().int().positive(),
   tech: z.coerce.number().int().positive(),
   industry: z.coerce.number().int().positive(),
-  images: z.object({
-    logo: z.array(z.string()).min(1),
-    team: z.array(z.string()).min(1),
-    product: z.array(z.string()).min(1),
-  }),
-  leaders: z.array(leaderSchema).min(1, "Pelo menos um fundador é necessário"),
-  commonMembers: z.array(z.string()),
+  leaders: z
+    .array(leaderSchema)
+    .min(1, "Pelo menos um fundador é necessário")
+    .max(10),
+  commonMembers: z.array(z.string().trim().min(1).max(100)).max(50),
 });
 
 export type Step1Input = z.infer<typeof step1Schema>;
@@ -99,11 +102,7 @@ export type SubmitProjectInput = z.infer<typeof submitProjectSchema>;
 // ---- File validation (used by the visual-resources step) ----
 
 export const FILE_SIZE_LIMIT = 10 * 1024 * 1024; // 10MB
-export const SUPPORTED_IMAGE_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-];
+export const SUPPORTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 export const FILE_NAME_REGEX = /^[a-zA-Z0-9_\-.]+$/;
 
 export function validateImageFile(file: File): string | null {

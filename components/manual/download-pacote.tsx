@@ -6,20 +6,15 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 
-const FILES_URL = process.env.NEXT_PUBLIC_FILES_URL;
 const FILE_NAME = "pacote-inovatech.zip";
 
 export function DownloadPacote() {
   const [loading, setLoading] = useState(false);
 
   const onDownload = async () => {
-    if (!FILES_URL) {
-      toast.error("Download indisponível no momento.");
-      return;
-    }
     setLoading(true);
     try {
-      const response = await fetch(`${FILES_URL}pacote-inovatec.zip`);
+      const response = await fetch("/files/pacote-inovatec.zip");
       if (!response.ok) throw new Error("Falha ao baixar");
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);

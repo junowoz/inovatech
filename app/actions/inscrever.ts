@@ -1,44 +1,46 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { eq } from "drizzle-orm";
 
+import { getDb, schema } from "@/lib/db";
+import { filesFromForm, uploadProjectImages } from "@/lib/inscrever/upload";
 import { serializeImagePaths } from "@/lib/media";
-import { createClient } from "@/lib/supabase/server";
-import type {
-  MemberInsert,
-  ProjectInsert,
-} from "@/lib/types/database";
-import {
-  submitProjectSchema,
-  type SubmitProjectInput,
-} from "@/lib/validations/inscrever";
+import { removeObjects } from "@/lib/storage";
+import type { MemberInsert, ProjectInsert } from "@/lib/types/database";
+import { submitProjectSchema } from "@/lib/validations/inscrever";
 
 export interface SubmitResult {
   success?: boolean;
   error?: string;
 }
 
-type ServerClient = Awaited<ReturnType<typeof createClient>>;
-
-async function removeUploaded(supabase: ServerClient, paths: string[]) {
+async function removeUploaded(paths: string[]) {
   if (paths.length === 0) return;
   try {
-    await supabase.storage.from("midia").remove(paths);
+    await removeObjects(paths);
   } catch (error) {
     console.error("[inscrever] storage cleanup:", error);
   }
 }
 
 /**
- * Registers a project and its members in a single transactional flow:
+ * Registers a project, its images, and members in one server-owned flow:
  * 1. insert the project (status = false, awaiting admin approval)
  * 2. insert the members
  * On any failure everything is rolled back (project row + uploaded images).
  */
 export async function submitProjectAction(
-  payload: SubmitProjectInput
+  form: FormData
 ): Promise<SubmitResult> {
-  const parsed = submitProjectSchema.safeParse(payload);
+  const payload = form.get("payload");
+  let data: unknown;
+  try {
+    data = typeof payload === "string" ? JSON.parse(payload) : null;
+  } catch {
+    return { error: "Dados inválidos." };
+  }
+  const parsed = submitProjectSchema.safeParse(data);
   if (!parsed.success) {
     return {
       error: "Dados inválidos. Verifique o formulário e tente novamente.",
@@ -46,15 +48,28 @@ export async function submitProjectAction(
   }
 
   const input = parsed.data;
-  const supabase = await createClient();
-  const allPaths = [
-    ...input.images.logo,
-    ...input.images.team,
-    ...input.images.product,
-  ];
+  let files: ReturnType<typeof filesFromForm>;
+  try {
+    files = filesFromForm(form);
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : "Imagens inválidas.",
+    };
+  }
+
+  const db = await getDb();
+  const projectUUID = crypto.randomUUID();
+  let images: Awaited<ReturnType<typeof uploadProjectImages>>;
+  try {
+    images = await uploadProjectImages(projectUUID, files);
+  } catch (error) {
+    console.error("[inscrever] image upload:", error);
+    return { error: "Não foi possível enviar as imagens. Tente novamente." };
+  }
+  const allPaths = [...images.logo, ...images.team, ...images.product];
 
   const projectRow: ProjectInsert = {
-    projectUUID: input.projectUUID,
+    projectUUID,
     name: input.name,
     slogan: input.slogan,
     projectDescription: input.projectDescription,
@@ -67,26 +82,18 @@ export async function submitProjectAction(
     course: input.course,
     tech: input.tech,
     industry: input.industry,
-    logoImg: input.images.logo.length
-      ? serializeImagePaths(input.images.logo)
-      : null,
-    teamImg: input.images.team.length
-      ? serializeImagePaths(input.images.team)
-      : null,
-    productImg: input.images.product.length
-      ? serializeImagePaths(input.images.product)
-      : null,
+    logoImg: serializeImagePaths(images.logo),
+    teamImg: serializeImagePaths(images.team),
+    productImg: serializeImagePaths(images.product),
     date: new Date().toISOString(),
     status: false,
   };
 
-  const { error: projectError } = await supabase
-    .from("project")
-    .insert(projectRow);
-
-  if (projectError) {
-    console.error("[inscrever] project insert:", projectError);
-    await removeUploaded(supabase, allPaths);
+  try {
+    await db.insert(schema.project).values(projectRow);
+  } catch (error) {
+    console.error("[inscrever] project insert:", error);
+    await removeUploaded(allPaths);
     return { error: "Não foi possível registrar o projeto. Tente novamente." };
   }
 
@@ -96,7 +103,7 @@ export async function submitProjectAction(
       contact: leader.contact,
       isFounder: leader.isFounder,
       isLeader: true,
-      projectUUID: input.projectUUID,
+      projectUUID,
     })),
     ...(input.commonMembers.length > 0
       ? [
@@ -105,19 +112,21 @@ export async function submitProjectAction(
             contact: null,
             isFounder: null,
             isLeader: false,
-            projectUUID: input.projectUUID,
+            projectUUID,
           },
         ]
       : []),
   ];
 
-  const { error: memberError } = await supabase.from("member").insert(members);
-
-  if (memberError) {
-    console.error("[inscrever] member insert:", memberError);
+  try {
+    await db.insert(schema.member).values(members);
+  } catch (error) {
+    console.error("[inscrever] member insert:", error);
     // Roll back so we never leave a project without its members.
-    await supabase.from("project").delete().eq("projectUUID", input.projectUUID);
-    await removeUploaded(supabase, allPaths);
+    await db
+      .delete(schema.project)
+      .where(eq(schema.project.projectUUID, projectUUID));
+    await removeUploaded(allPaths);
     return { error: "Não foi possível registrar os membros. Tente novamente." };
   }
 

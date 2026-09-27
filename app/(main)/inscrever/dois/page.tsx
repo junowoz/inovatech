@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { StepDoisForm } from "@/components/inscrever/step-dois-form";
-import { getLookups } from "@/lib/supabase/queries";
+import { getLookups } from "@/lib/db/queries";
 
 export const metadata: Metadata = {
   title: "Inscrever — Informações Específicas",

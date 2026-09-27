@@ -29,7 +29,7 @@ const externalProps = {
 
 export function Footer() {
   const year = new Date().getFullYear();
-  const hasContact = CONTACT.emailHref || CONTACT.whatsapp || CONTACT.address;
+  const hasContact = Boolean(CONTACT.emailHref);
 
   return (
     <footer className="border-t border-border bg-secondary/40 text-muted-foreground">
@@ -66,29 +66,7 @@ export function Footer() {
                     href={CONTACT.emailHref}
                     className="transition-colors hover:text-foreground"
                   >
-                    Email
-                  </a>
-                </li>
-              ) : null}
-              {CONTACT.whatsapp ? (
-                <li>
-                  <a
-                    href={CONTACT.whatsapp}
-                    {...externalProps}
-                    className="transition-colors hover:text-foreground"
-                  >
-                    WhatsApp
-                  </a>
-                </li>
-              ) : null}
-              {CONTACT.address ? (
-                <li>
-                  <a
-                    href={CONTACT.address}
-                    {...externalProps}
-                    className="transition-colors hover:text-foreground"
-                  >
-                    Endereço
+                    {CONTACT.email}
                   </a>
                 </li>
               ) : null}

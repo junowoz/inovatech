@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 };
 
 export default function InscreverPage() {
-  const hasContact = CONTACT.emailHref || CONTACT.whatsapp;
+  const hasContact = CONTACT.emailHref;
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-12">
@@ -46,21 +46,6 @@ export default function InscreverPage() {
                     className="text-primary hover:underline"
                   >
                     {CONTACT.email}
-                  </a>
-                </>
-              ) : null}
-              {CONTACT.emailHref && CONTACT.whatsapp ? " ou" : null}
-              {CONTACT.whatsapp ? (
-                <>
-                  {" "}
-                  pelo{" "}
-                  <a
-                    href={CONTACT.whatsapp}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline"
-                  >
-                    WhatsApp
                   </a>
                 </>
               ) : null}

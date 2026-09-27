@@ -5,12 +5,7 @@ import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useHydrated } from "@/lib/hooks/use-hydrated";
 import {
@@ -19,11 +14,7 @@ import {
   useInscreverStore,
 } from "@/lib/stores/inscrever-store";
 import { isSquareImage, validateImageFile } from "@/lib/validations/inscrever";
-import {
-  FieldError,
-  FieldLabel,
-  RequiredFieldsHeading,
-} from "./field-label";
+import { FieldError, FieldLabel, RequiredFieldsHeading } from "./field-label";
 import { InscreverProgress } from "./inscrever-progress";
 
 interface FileErrors {
@@ -32,12 +23,12 @@ interface FileErrors {
   product?: string;
 }
 
-const ACCEPT = ".jpeg,.jpg,.png,.svg";
+const ACCEPT = ".jpeg,.jpg,.png,.webp";
 
 function SelectedNames({ files }: { files: File[] }) {
   if (files.length === 0) return null;
   return (
-    <p className="mt-1 truncate text-xs text-muted-foreground">
+    <p className="text-muted-foreground mt-1 truncate text-xs">
       {files.map((f) => f.name).join(", ")}
     </p>
   );
@@ -104,6 +95,14 @@ export function StepTresForm() {
       }
     }
 
+    const totalBytes = [...logo, ...team, ...product].reduce(
+      (sum, file) => sum + file.size,
+      0
+    );
+    if (totalBytes > 25 * 1024 * 1024) {
+      next.product = "As imagens somadas devem ter até 25 MB.";
+    }
+
     setErrors(next);
     if (Object.keys(next).length > 0) return;
 
@@ -131,7 +130,7 @@ export function StepTresForm() {
           <div>
             <FieldLabel
               htmlFor="logoImg"
-              hint="A logo deve ser quadrada (ex: 160x160, 280x280). Formatos recomendados: PNG e SVG."
+              hint="A logo deve ser quadrada (ex: 160x160, 280x280). Formatos aceitos: JPEG, PNG e WebP."
             >
               Logo do Projeto
             </FieldLabel>

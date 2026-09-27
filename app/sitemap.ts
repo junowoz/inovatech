@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { SITE } from "@/lib/constants";
-import { getPublishedProjects } from "@/lib/supabase/queries";
+import { getPublishedProjects } from "@/lib/db/queries";
 
 export const dynamic = "force-dynamic";
 

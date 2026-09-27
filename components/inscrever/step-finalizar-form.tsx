@@ -12,7 +12,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useHydrated } from "@/lib/hooks/use-hydrated";
-import { uploadProjectImages } from "@/lib/inscrever/upload";
 import {
   hasFiles,
   hasStep1,
@@ -79,7 +78,9 @@ export function StepFinalizarForm() {
   );
 
   const updateLeader = (id: string, patch: Partial<LeaderInput>) =>
-    setLeaders((prev) => prev.map((l) => (l.id === id ? { ...l, ...patch } : l)));
+    setLeaders((prev) =>
+      prev.map((l) => (l.id === id ? { ...l, ...patch } : l))
+    );
 
   const addLeader = () =>
     setLeaders((prev) =>
@@ -87,7 +88,9 @@ export function StepFinalizarForm() {
     );
 
   const removeLeader = (id: string) =>
-    setLeaders((prev) => (prev.length > 1 ? prev.filter((l) => l.id !== id) : prev));
+    setLeaders((prev) =>
+      prev.length > 1 ? prev.filter((l) => l.id !== id) : prev
+    );
 
   const handleBack = () => {
     persistLeaders(leaders);
@@ -134,11 +137,7 @@ export function StepFinalizarForm() {
     try {
       const state = useInscreverStore.getState();
       const d = state.data;
-      const projectUUID = crypto.randomUUID();
-      const images = await uploadProjectImages(projectUUID, state.files);
-
-      const result = await submitProjectAction({
-        projectUUID,
+      const payload = {
         name: d.name ?? "",
         slogan: d.slogan ?? "",
         projectDescription: d.projectDescription ?? "",
@@ -151,14 +150,19 @@ export function StepFinalizarForm() {
         course: Number(d.course),
         tech: Number(d.tech),
         industry: Number(d.industry),
-        images,
         leaders: leaders.map((l) => ({
           name: l.name.trim(),
           contact: l.contact.trim(),
           isFounder: l.isFounder,
         })),
         commonMembers,
-      });
+      };
+      const form = new FormData();
+      form.set("payload", JSON.stringify(payload));
+      for (const kind of ["logo", "team", "product"] as const) {
+        for (const file of state.files[kind]) form.append(kind, file);
+      }
+      const result = await submitProjectAction(form);
 
       if (result.error) {
         toast.error(result.error);
@@ -184,7 +188,9 @@ export function StepFinalizarForm() {
       <MembrosMensagem />
 
       <div>
-        <h2 className="mb-2 font-semibold text-secondary-foreground">Membros</h2>
+        <h2 className="text-secondary-foreground mb-2 font-semibold">
+          Membros
+        </h2>
         <Card>
           <CardContent>
             <TagsInput
@@ -197,7 +203,7 @@ export function StepFinalizarForm() {
       </div>
 
       <div className="space-y-3">
-        <h2 className="font-semibold text-secondary-foreground">Fundadores</h2>
+        <h2 className="text-secondary-foreground font-semibold">Fundadores</h2>
         {leaders.map((leader, index) => (
           <Card key={leader.id}>
             <CardContent className="space-y-3">
@@ -231,7 +237,9 @@ export function StepFinalizarForm() {
                     type="button"
                     variant={!leader.isFounder ? "default" : "outline"}
                     className="flex-1 rounded-l-none sm:flex-initial"
-                    onClick={() => updateLeader(leader.id, { isFounder: false })}
+                    onClick={() =>
+                      updateLeader(leader.id, { isFounder: false })
+                    }
                   >
                     Cofundador
                   </Button>
@@ -297,7 +305,7 @@ export function StepFinalizarForm() {
         </Button>
       </div>
       {!isValid && (
-        <p className="text-right text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-right text-sm">
           Preencha ao menos um fundador com nome e contato.
         </p>
       )}
