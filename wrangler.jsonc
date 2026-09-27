@@ -8,7 +8,6 @@
   "preview_urls": false,
   "routes": [{ "pattern": "inovatech.junowoz.com", "custom_domain": true }],
   "observability": { "enabled": true },
-  "placement": { "mode": "smart" },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
