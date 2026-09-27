@@ -10,7 +10,7 @@
  * contacts and password hashes; the credentials file contains a new password.
  */
 
-import { pbkdf2Sync, randomBytes, randomUUID } from "node:crypto";
+import { scryptSync, randomBytes, randomUUID } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -172,8 +172,8 @@ for (const [table, columns] of tables) {
 }
 for (const { email, password } of credentials) {
   const salt = randomBytes(16);
-  const hash = pbkdf2Sync(password, salt, 210_000, 32, "sha256");
-  const passwordHash = `pbkdf2$210000$${salt.toString("hex")}$${hash.toString("hex")}`;
+  const hash = scryptSync(password, salt, 32, { N: 16_384, r: 8, p: 5, maxmem: 64 * 1024 * 1024 });
+  const passwordHash = `scrypt$16384$8$5$${salt.toString("hex")}$${hash.toString("hex")}`;
   statements.push(
     `INSERT INTO "adminUser" ("id", "email", "passwordHash", "name") VALUES (${sqlValue(randomUUID())}, ${sqlValue(email)}, ${sqlValue(passwordHash)}, 'Admin');`
   );

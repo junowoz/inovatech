@@ -59,8 +59,8 @@ export const member = sqliteTable("member", {
 
 // ---------------------------------------------------------------------------
 // Admin auth (replaces Supabase Auth + the `admins` allowlist table). Every
-// row here is an admin — see lib/auth/*. Password hashing: PBKDF2-SHA256 via
-// Web Crypto (available in the Workers runtime, no native deps).
+// row here is an admin — see lib/auth/*. Password hashing: scrypt via
+// node:crypto (available in the Workers runtime).
 // ---------------------------------------------------------------------------
 
 export const adminUser = sqliteTable("adminUser", {

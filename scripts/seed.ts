@@ -7,36 +7,22 @@
  * database (`pnpm db:migrate:local`).
  */
 
-import { randomBytes } from "node:crypto";
-import { webcrypto } from "node:crypto";
+import { randomBytes, scryptSync } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const ITERATIONS = 210_000;
 const DEV_ADMIN_EMAIL = "admin@inovatech.local";
 const DEV_ADMIN_PASSWORD = "inovatech-dev-123";
 
-// Mirrors lib/auth/password.ts (`pbkdf2$<iterations>$<saltHex>$<hashHex>`),
+// Mirrors lib/auth/password.ts (`scrypt$N$r$p$saltHex$hashHex`),
 // duplicated here so this script has no dependency on the app's TS path
 // aliases and can run standalone under `tsx`.
 async function hashPassword(password: string): Promise<string> {
   const salt = randomBytes(16);
-  const keyMaterial = await webcrypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(password),
-    "PBKDF2",
-    false,
-    ["deriveBits"]
-  );
-  const bits = await webcrypto.subtle.deriveBits(
-    { name: "PBKDF2", salt, iterations: ITERATIONS, hash: "SHA-256" },
-    keyMaterial,
-    256
-  );
-  const hashHex = Buffer.from(bits).toString("hex");
-  return `pbkdf2$${ITERATIONS}$${salt.toString("hex")}$${hashHex}`;
+  const hash = scryptSync(password, salt, 32, { N: 16_384, r: 8, p: 5, maxmem: 64 * 1024 * 1024 });
+  return `scrypt$16384$8$5$${salt.toString("hex")}$${hash.toString("hex")}`;
 }
 
 function sqlString(value: string): string {

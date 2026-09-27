@@ -51,7 +51,7 @@ components/
 lib/
   db/                      schema.ts (Drizzle/D1), index.ts (getDb/getEnv),
                            queries.ts (reads)
-  auth/                    password.ts (PBKDF2), session.ts (cookie + D1),
+  auth/                    password.ts (scrypt), session.ts (cookie + D1),
                            constants.ts (nome do cookie, sem deps de server)
   storage.ts               R2 (put/get/remove), prefixo `inovatech/`
   stores/                  inscrever-store.ts (zustand)
