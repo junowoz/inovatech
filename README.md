@@ -51,8 +51,8 @@ Veja [.env.example](.env.example). As principais:
 - Schema: [`lib/db/schema.ts`](lib/db/schema.ts).
 - `pnpm db:generate` — gera migrations SQL em `./drizzle` a partir do schema.
 - `pnpm db:migrate:local` — aplica as migrations no D1 local (miniflare).
-- `cf run junowoz -- pnpm db:migrate:remote` — aplica futuras migrations no
-  D1 de produção usando o perfil Cloudflare local `junowoz`.
+- `pnpm db:migrate:remote` — aplica futuras migrations no D1 de produção com o
+  `cf` oficial e a credencial de operador ativa.
 - `pnpm db:studio` — abre o Drizzle Studio contra o D1 remoto (usa as
   `CLOUDFLARE_*` env vars).
 

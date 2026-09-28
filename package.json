@@ -16,7 +16,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,css,md,json}\" --ignore-path .prettierignore",
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply inovatech --local",
-    "db:migrate:remote": "wrangler d1 migrations apply inovatech --remote",
+    "db:migrate:remote": "cf d1 migrations apply 7fd3a010-24e1-4692-be15-34932aedbb6e --dir drizzle",
     "db:studio": "drizzle-kit studio",
     "db:seed:local": "tsx scripts/seed.ts",
     "cf:clean": "rm -rf .open-next",
