@@ -111,10 +111,11 @@ Os dois scripts aplicam a mesma normalização se a migração for refeita.
 **Não execute o SQL de importação outra vez no D1 já preenchido.** A senha
 inicial do administrador está somente em
 `/tmp/inovatech-migration/admin-credentials.json` nesta VPS; coloque-a em um
-gerenciador de senhas e altere-a no painel após o primeiro acesso. O Supabase
-permanece como origem histórica até conferir o Worker publicado. Revogue as
-chaves S3 compartilhadas e troque a senha Postgres expostas no chat após essa
-conferência.
+gerenciador de senhas e altere-a no painel após o primeiro acesso. Em
+2026-10-09, o operador informou que o projeto Supabase foi excluído após a
+migração para o Worker. A disponibilidade de uma cópia independente do export
+anterior ainda não foi confirmada. Revogue as chaves S3 compartilhadas e troque
+a senha Postgres expostas no chat.
 
 ## Scripts
 
